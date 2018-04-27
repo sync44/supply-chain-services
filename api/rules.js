@@ -1,10 +1,6 @@
 'use strict';
 
-//const util = require('util');
 const express = require('express');
-//const HttpStatus = require('http-status-codes');
-//const validate = require('jsonschema').validate;
-//const schema = require('./schema');
 const rules = require('../services/rules');
 //const bodyParser = require('body-parser');  
 //const http = require('http');

@@ -1,13 +1,11 @@
 'use strict';
-
-//var config = require('../config');
 const util = require('util');
 const proof = require('./proof');
 const request = require('request-promise');
 const fs = require('fs');
 
-async function checkRules(trackingId, userId, orgId, dycrypt){
-  var proofs = getProofs(trackingId, dycrypt);
+function checkRules(trackingId, userId, orgId, dycrypt){
+  var proofs = await getProofs(trackingId, dycrypt);
   var apisList = getUserApisList(orgId);
   
     // TODO: Call the APIs one by one with the proofs
@@ -40,7 +38,7 @@ function getUserApisList(orgId){
   }
 }
 
-function getProofs(trackingId, dycrypt){
+await function getProofs(trackingId, dycrypt){
   var opts = { 
       trackingId, 
       decrypt,
@@ -49,26 +47,27 @@ function getProofs(trackingId, dycrypt){
   
     console.log(`getting proof for ${util.inspect(opts)}`);
   
+    var result;
     try {
-      var result = await proof.getProof(opts);
+      result = await proof.getProof(opts);
     }
     catch(err) {
       console.error(`error getting proof: ${err.message}`);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: err.message });
+      return err;
     }
   
     if (!result) {
       console.warn(`no proofs for this tracking id '${opts.trackingId}' were found`);
-      return res.status(HttpStatus.NOT_FOUND).json({ error: `no proofs for this tracking id '${opts.trackingId}' were found` });
+      return null;
     }
   
     console.log(`sending result: ${util.inspect(result)}`);
-    return res.json(result);
+    return result;
 }
 
 
-function postReq(apiUrl, data) {
-  var res = await request({
+async function postReq(apiUrl, data) {
+  return request({
       url: apiUrl,
       method: "POST",
       json: true,
@@ -81,8 +80,6 @@ function postReq(apiUrl, data) {
       console.log(response);
       return response;
   });
-
-  return res;
 }
 
 
